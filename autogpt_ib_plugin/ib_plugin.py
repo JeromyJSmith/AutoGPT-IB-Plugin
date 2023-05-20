@@ -1,16 +1,10 @@
 from ib_insync import *
 import pandas as pd
 
-class IBPlugin:
+class IBBacktestPlugin:
     def __init__(self):
         self.ib = IB()
         self.ib.connect('127.0.0.1', 7497, clientId=1)
-
-    def get_stock_price(self, symbol):
-        contract = Stock(symbol, 'SMART', 'USD')
-        self.ib.qualifyContracts(contract)
-        [ticker] = self.ib.reqTickers(contract)
-        return ticker.marketPrice()
 
     def get_historical_data(self, symbol, durationStr='1 Y', barSizeSetting='1 day'):
         contract = Stock(symbol, 'SMART', 'USD')
@@ -26,9 +20,14 @@ class IBPlugin:
         )
         return util.df(bars)
 
-    def place_order(self, symbol, action, quantity):
+    def simulate_trade(self, symbol, action, quantity):
+        # This is a simplified simulation, you may need a more complex simulation for your backtest
         contract = Stock(symbol, 'SMART', 'USD')
         self.ib.qualifyContracts(contract)
-        order = MarketOrder(action, quantity)
-        trade = self.ib.placeOrder(contract, order)
-        return trade
+        [ticker] = self.ib.reqTickers(contract)
+        price = ticker.marketPrice()
+        return price * quantity if action == 'BUY' else -price * quantity
+
+    def calculate_performance(self, trades):
+        # This is a simplified calculation, you may need a more complex calculation for your backtest
+        return sum(trades)
